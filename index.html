@@ -1,41 +1,146 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>域名合作</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>域名合作 - 全网最低价</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 80px auto; padding: 0 20px; }
-    .domain { font-size: 1.5em; font-weight: bold; color: #333; }
-    .contact { margin-top: 24px; padding: 20px; background: #f5f5f5; border-radius: 8px; }
-    a { color: #0066cc; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   "PingFang SC", "Microsoft YaHei", sans-serif;
+      max-width: 640px;
+      margin: 60px auto;
+      padding: 0 24px;
+      color: #222;
+      line-height: 1.7;
+      background: #fafafa;
+    }
+    .label { color: #888; font-size: 14px; margin-bottom: 4px; }
+    .domain {
+      font-size: 26px;
+      font-weight: 700;
+      color: #111;
+      word-break: break-all;
+      margin: 0 0 8px;
+    }
+    .unicode {
+      font-size: 15px;
+      color: #999;
+      margin: 0 0 32px;
+      word-break: break-all;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+    .card h2 {
+      font-size: 18px;
+      margin: 0 0 16px;
+      color: #111;
+    }
+    .row {
+      margin-bottom: 14px;
+      font-size: 15px;
+    }
+    .row:last-child { margin-bottom: 0; }
+    .row .k {
+      display: inline-block;
+      width: 76px;
+      color: #888;
+    }
+    a {
+      color: #0066cc;
+      text-decoration: none;
+      word-break: break-all;
+    }
+    a:hover { text-decoration: underline; }
+    .note {
+      margin-top: 28px;
+      font-size: 13px;
+      color: #aaa;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
 
-  <p>您正在访问：</p>
-  <p class="domain" id="domainName"></p>
+  <p class="label">您正在访问：</p>
+  <h1 class="domain" id="domainName">加载中…</h1>
+  <p class="unicode" id="unicodeName"></p>
 
-  <div class="contact" id="contactBox">
-    <p><strong>合作 / 购买咨询</strong></p>
-    <p>邮箱：<a id="emailLink" href="#">loading...</a></p>
+  <div class="card">
+    <h2>合作 / 购买咨询</h2>
+    <div class="row"><span class="k">邮箱</span><a id="emailLink" href="#">加载中…</a></div>
+    <div class="row"><span class="k">微信</span><span id="wechatText">—</span></div>
   </div>
+
+  <p class="note">本域名可出售 / 可合作，欢迎联系</p>
 
   <script>
     (function () {
-      var host = location.hostname; // 例如 "example.com" 或 "www.example.com"
-      document.getElementById('domainName').textContent = host;
+      // 当前访问的域名（可能是 punycode，也可能是普通域名）
+      var host = location.hostname;
 
-      // 域名 → 联系邮箱 的映射表
+      // 尝试把 punycode 解码成中文，方便显示
+      var hostUnicode = host;
+      try {
+        // URL 构造函数会自动把 punycode 转成 Unicode
+        hostUnicode = new URL('http://' + host).hostname;
+      } catch (e) {}
+
+      // ---------- 显示域名 ----------
+      document.getElementById('domainName').textContent = hostUnicode;
+      if (hostUnicode !== host) {
+        // 如果解码后和原始不一样，说明是 IDN，额外显示 punycode
+        document.getElementById('unicodeName').textContent = '（' + host + '）';
+      }
+
+      // ---------- 域名 → 联系方式 映射表 ----------
+      // 建议同时写 punycode 和中文两种 key，避免匹配失败
       var contactMap = {
-        'primary.com': 'buy-primary@example.com',
-        'otherdomain.com': 'buy-other@example.com',
-        'www.otherdomain.com': 'buy-other@example.com'
+        // 全网最低价.com
+        'xn--6nq0hu3d154bjz1a.com': {
+          email:  'your-real-email@example.com',   // ← 改成你的真实邮箱
+          wechat: 'your-wechat-id'                 // ← 改成你的微信号，没有就留空
+        },
+        '全网最低价.com': {
+          email:  'your-real-email@example.com',
+          wechat: 'your-wechat-id'
+        }
+
+        // 以后加新域名，按同样格式继续加：
+        // 'otherdomain.com': { email: 'xx@xx.com', wechat: 'xx' },
       };
 
-      var email = contactMap[host] || 'contact@example.com';
-      var link = document.getElementById('emailLink');
-      link.href = 'mailto:' + email + '?subject=' + encodeURIComponent('关于 ' + host + ' 的合作咨询');
-      link.textContent = email;
+      // ---------- 匹配逻辑 ----------
+      var info = contactMap[host] || contactMap[hostUnicode];
+
+      // 兜底：如果没匹配到，用默认联系方式
+      if (!info) {
+        info = {
+          email:  '233796618@qq.com',   // ← 改成你的默认邮箱
+          wechat: ''
+        };
+      }
+
+      // ---------- 渲染邮箱 ----------
+      var emailLink = document.getElementById('emailLink');
+      emailLink.href = 'mailto:' + info.email +
+        '?subject=' + encodeURIComponent('关于 ' + hostUnicode + ' 的合作咨询');
+      emailLink.textContent = info.email;
+
+      // ---------- 渲染微信 ----------
+      var wechatText = document.getElementById('wechatText');
+      if (info.wechat) {
+        wechatText.textContent = info.wechat;
+      } else {
+        // 没有微信就隐藏这一行
+        wechatText.parentElement.style.display = 'none';
+      }
     })();
   </script>
 
