@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>域名合作 - 全网最低价</title>
+  <title>域名合作</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -18,128 +18,105 @@
     }
     .label { color: #888; font-size: 14px; margin-bottom: 4px; }
     .domain {
-      font-size: 26px;
-      font-weight: 700;
-      color: #111;
-      word-break: break-all;
-      margin: 0 0 8px;
+      font-size: 26px; font-weight: 700; color: #111;
+      word-break: break-all; margin: 0 0 8px;
     }
-    .unicode {
-      font-size: 15px;
-      color: #999;
-      margin: 0 0 32px;
+    .puny {
+      font-size: 13px; color: #aaa; margin: 0 0 32px;
       word-break: break-all;
     }
     .card {
-      background: #fff;
-      border: 1px solid #eee;
-      border-radius: 12px;
-      padding: 28px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      background: #fff; border: 1px solid #eee; border-radius: 12px;
+      padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.04);
     }
-    .card h2 {
-      font-size: 18px;
-      margin: 0 0 16px;
-      color: #111;
-    }
-    .row {
-      margin-bottom: 14px;
-      font-size: 15px;
-    }
+    .card h2 { font-size: 18px; margin: 0 0 16px; color: #111; }
+    .row { margin-bottom: 14px; font-size: 15px; }
     .row:last-child { margin-bottom: 0; }
-    .row .k {
-      display: inline-block;
-      width: 76px;
-      color: #888;
-    }
-    a {
-      color: #0066cc;
-      text-decoration: none;
-      word-break: break-all;
-    }
+    .row .k { display: inline-block; width: 76px; color: #888; }
+    a { color: #0066cc; text-decoration: none; word-break: break-all; }
     a:hover { text-decoration: underline; }
-    .note {
-      margin-top: 28px;
-      font-size: 13px;
-      color: #aaa;
-      text-align: center;
-    }
+    .note { margin-top: 28px; font-size: 13px; color: #aaa; text-align: center; }
   </style>
 </head>
 <body>
 
   <p class="label">您正在访问：</p>
   <h1 class="domain" id="domainName">加载中…</h1>
-  <p class="unicode" id="unicodeName"></p>
+  <p class="puny" id="punyName"></p>
 
   <div class="card">
     <h2>合作 / 购买咨询</h2>
     <div class="row"><span class="k">邮箱</span><a id="emailLink" href="#">加载中…</a></div>
-    <div class="row"><span class="k">微信</span><span id="wechatText">—</span></div>
+    <div class="row" id="wechatRow"><span class="k">微信</span><span id="wechatText">—</span></div>
   </div>
 
   <p class="note">本域名可出售 / 可合作，欢迎联系</p>
 
   <script>
     (function () {
-      // 当前访问的域名（可能是 punycode，也可能是普通域名）
-      var host = location.hostname;
+      var host = location.hostname; // 实际拿到的可能是 punycode
 
-      // 尝试把 punycode 解码成中文，方便显示
-      var hostUnicode = host;
-      try {
-        // URL 构造函数会自动把 punycode 转成 Unicode
-        hostUnicode = new URL('http://' + host).hostname;
-      } catch (e) {}
-
-      // ---------- 显示域名 ----------
-      document.getElementById('domainName').textContent = hostUnicode;
-      if (hostUnicode !== host) {
-        // 如果解码后和原始不一样，说明是 IDN，额外显示 punycode
-        document.getElementById('unicodeName').textContent = '（' + host + '）';
-      }
-
-      // ---------- 域名 → 联系方式 映射表 ----------
-      // 建议同时写 punycode 和中文两种 key，避免匹配失败
+      // ============================================================
+      // ?? 你只需要改这一段：填上真实的邮箱和微信
+      // ============================================================
       var contactMap = {
-        // 全网最低价.com
+        // 全网最低价.com（punycode 和中文都写一份，保证能匹配）
         'xn--6nq0hu3d154bjz1a.com': {
-          email:  '233796618@qq.com',   // ← 改成你的真实邮箱
-          wechat: ''                 // ← 改成你的微信号，没有就留空
+          name:   '全网最低价.com',
+          email:  '真实邮箱@example.com',   // ← 改这里
+          wechat: '真实微信号'              // ← 改这里
         },
         '全网最低价.com': {
-          email:  'your-real-email@example.com',
-          wechat: 'your-wechat-id'
+          name:   '全网最低价.com',
+          email:  '真实邮箱@example.com',   // ← 改这里
+          wechat: '真实微信号'              // ← 改这里
         }
 
-        // 以后加新域名，按同样格式继续加：
-        // 'otherdomain.com': { email: 'xx@xx.com', wechat: 'xx' },
+        // 以后加新域名，按同样格式追加：
+        // 'otherdomain.com': {
+        //   name: 'otherdomain.com',
+        //   email: 'xx@xx.com',
+        //   wechat: 'xx'
+        // },
       };
+      // ============================================================
+      // 上面这段改完就 OK，下面不用动
+      // ============================================================
 
-      // ---------- 匹配逻辑 ----------
-      var info = contactMap[host] || contactMap[hostUnicode];
 
-      // 兜底：如果没匹配到，用默认联系方式
+      // 匹配：先按原始 host 找，再按去掉 www. 的找
+      var info = contactMap[host]
+              || contactMap[host.replace(/^www\./, '')];
+
+      // 兜底
       if (!info) {
         info = {
-          email:  '233796618@qq.com',   // ← 改成你的默认邮箱
+          name:   host,
+          email:  'contact@example.com',
           wechat: ''
         };
       }
 
-      // ---------- 渲染邮箱 ----------
+      // 显示域名
+      var showName = info.name || host;
+      document.getElementById('domainName').textContent = showName;
+
+      // 如果是 IDN，额外用小字显示 punycode，方便对照
+      if (host !== showName) {
+        document.getElementById('punyName').textContent = '（' + host + '）';
+      }
+
+      // 邮箱
       var emailLink = document.getElementById('emailLink');
       emailLink.href = 'mailto:' + info.email +
-        '?subject=' + encodeURIComponent('关于 ' + hostUnicode + ' 的合作咨询');
+        '?subject=' + encodeURIComponent('关于 ' + showName + ' 的合作咨询');
       emailLink.textContent = info.email;
 
-      // ---------- 渲染微信 ----------
-      var wechatText = document.getElementById('wechatText');
+      // 微信（没填就隐藏整行）
       if (info.wechat) {
-        wechatText.textContent = info.wechat;
+        document.getElementById('wechatText').textContent = info.wechat;
       } else {
-        // 没有微信就隐藏这一行
-        wechatText.parentElement.style.display = 'none';
+        document.getElementById('wechatRow').style.display = 'none';
       }
     })();
   </script>
