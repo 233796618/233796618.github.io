@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>域名合作</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 80px auto; padding: 0 20px; }
+    .domain { font-size: 1.5em; font-weight: bold; color: #333; }
+    .contact { margin-top: 24px; padding: 20px; background: #f5f5f5; border-radius: 8px; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+
+  <p>您正在访问：</p>
+  <p class="domain" id="domainName"></p>
+
+  <div class="contact" id="contactBox">
+    <p><strong>合作 / 购买咨询</strong></p>
+    <p>邮箱：<a id="emailLink" href="#">loading...</a></p>
+  </div>
+
+  <script>
+    (function () {
+      var host = location.hostname; // 例如 "example.com" 或 "www.example.com"
+      document.getElementById('domainName').textContent = host;
+
+      // 域名 → 联系邮箱 的映射表
+      var contactMap = {
+        'primary.com': 'buy-primary@example.com',
+        'otherdomain.com': 'buy-other@example.com',
+        'www.otherdomain.com': 'buy-other@example.com'
+      };
+
+      var email = contactMap[host] || 'contact@example.com';
+      var link = document.getElementById('emailLink');
+      link.href = 'mailto:' + email + '?subject=' + encodeURIComponent('关于 ' + host + ' 的合作咨询');
+      link.textContent = email;
+    })();
+  </script>
+
+</body>
+</html>
